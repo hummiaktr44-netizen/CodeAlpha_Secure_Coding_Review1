@@ -1,0 +1,139 @@
+Run started:2026-10-10 18:32:08.433744+00:00
+
+Test results:
+>> Issue: [B403:blacklist] Consider possible security implications associated with pickle module.
+   Severity: Low   Confidence: High
+   CWE: CWE-502 (https://cwe.mitre.org/data/definitions/502.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b403-import-pickle
+   Location: ./vulnerable_app.py:4:0
+3	import os
+4	import pickle
+5	import sqlite3
+
+--------------------------------------------------
+>> Issue: [B404:blacklist] Consider possible security implications associated with the subprocess module.
+   Severity: Low   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_imports.html#b404-import-subprocess
+   Location: ./vulnerable_app.py:6:0
+5	import sqlite3
+6	import subprocess
+7	
+
+--------------------------------------------------
+>> Issue: [B105:hardcoded_password_string] Possible hardcoded password: 'admin123'
+   Severity: Low   Confidence: Medium
+   CWE: CWE-259 (https://cwe.mitre.org/data/definitions/259.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b105_hardcoded_password_string.html
+   Location: ./vulnerable_app.py:11:13
+10	app = Flask(__name__)
+11	SECRET_KEY = "admin123"          # hardcoded secret
+12	DB = "users.db"
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: ./vulnerable_app.py:26:13
+25	    password = request.form["password"]
+26	    hashed = hashlib.md5(password.encode()).hexdigest()      # weak hash, no salt
+27	    con = sqlite3.connect(DB)
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: ./vulnerable_app.py:28:18
+27	    con = sqlite3.connect(DB)
+28	    con.execute(f"INSERT INTO users VALUES ('{name}', '{hashed}')")  # SQL injection
+29	    con.commit()
+
+--------------------------------------------------
+>> Issue: [B324:hashlib] Use of weak MD5 hash for security. Consider usedforsecurity=False
+   Severity: High   Confidence: High
+   CWE: CWE-327 (https://cwe.mitre.org/data/definitions/327.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b324_hashlib.html
+   Location: ./vulnerable_app.py:36:15
+35	    name = request.form["name"]
+36	    password = hashlib.md5(request.form["password"].encode()).hexdigest()
+37	    con = sqlite3.connect(DB)
+
+--------------------------------------------------
+>> Issue: [B608:hardcoded_sql_expressions] Possible SQL injection vector through string-based query construction.
+   Severity: Medium   Confidence: Low
+   CWE: CWE-89 (https://cwe.mitre.org/data/definitions/89.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b608_hardcoded_sql_expressions.html
+   Location: ./vulnerable_app.py:38:12
+37	    con = sqlite3.connect(DB)
+38	    query = "SELECT * FROM users WHERE name = '" + name + "' AND password = '" + password + "'"
+39	    row = con.execute(query).fetchone()                      # SQL injection
+
+--------------------------------------------------
+>> Issue: [B602:subprocess_popen_with_shell_equals_true] subprocess call with shell=True identified, security issue.
+   Severity: High   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b602_subprocess_popen_with_shell_equals_true.html
+   Location: ./vulnerable_app.py:46:11
+45	    host = request.args.get("host", "")
+46	    return subprocess.check_output("ping -c 1 " + host, shell=True)  # command injection
+47	
+
+--------------------------------------------------
+>> Issue: [B307:blacklist] Use of possibly insecure function - consider using safer ast.literal_eval.
+   Severity: Medium   Confidence: High
+   CWE: CWE-78 (https://cwe.mitre.org/data/definitions/78.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b307-eval
+   Location: ./vulnerable_app.py:58:15
+57	def calc():
+58	    return str(eval(request.args.get("expr", "0")))          # code injection
+59	
+
+--------------------------------------------------
+>> Issue: [B301:blacklist] Pickle and modules that wrap it can be unsafe when used to deserialize untrusted data, possible security issue.
+   Severity: Medium   Confidence: High
+   CWE: CWE-502 (https://cwe.mitre.org/data/definitions/502.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/blacklists/blacklist_calls.html#b301-pickle
+   Location: ./vulnerable_app.py:63:10
+62	def load():
+63	    obj = pickle.loads(request.data)                         # insecure deserialization
+64	    return str(obj)
+
+--------------------------------------------------
+>> Issue: [B201:flask_debug_true] A Flask app appears to be run with debug=True, which exposes the Werkzeug debugger and allows the execution of arbitrary code.
+   Severity: High   Confidence: Medium
+   CWE: CWE-94 (https://cwe.mitre.org/data/definitions/94.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b201_flask_debug_true.html
+   Location: ./vulnerable_app.py:69:4
+68	    init_db()
+69	    app.run(host="0.0.0.0", debug=True)                      # debug mode + open to all interfaces
+
+--------------------------------------------------
+>> Issue: [B104:hardcoded_bind_all_interfaces] Possible binding to all interfaces.
+   Severity: Medium   Confidence: Medium
+   CWE: CWE-605 (https://cwe.mitre.org/data/definitions/605.html)
+   More Info: https://bandit.readthedocs.io/en/1.9.4/plugins/b104_hardcoded_bind_all_interfaces.html
+   Location: ./vulnerable_app.py:69:17
+68	    init_db()
+69	    app.run(host="0.0.0.0", debug=True)                      # debug mode + open to all interfaces
+
+--------------------------------------------------
+
+Code scanned:
+	Total lines of code: 51
+	Total lines skipped (#nosec): 0
+	Total potential issues skipped due to specifically being disabled (e.g., #nosec BXXX): 0
+
+Run metrics:
+	Total issues (by severity):
+		Undefined: 0
+		Low: 3
+		Medium: 5
+		High: 4
+	Total issues (by confidence):
+		Undefined: 0
+		Low: 1
+		Medium: 4
+		High: 7
+Files skipped (0):
